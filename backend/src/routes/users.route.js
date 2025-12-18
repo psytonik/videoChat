@@ -2,9 +2,11 @@ import {Router} from "express";
 import protectedRoute from "../middleware/auth.middleware.js";
 import {
     acceptFriendRequest,
+    removeFriend,
     getFriendRequest,
     getMyFriends,
-    getRecommendedUsers, outgoingFriendRequest,
+    getRecommendedUsers,
+    outgoingFriendRequest,
     sendFriendRequest
 } from "../controllers/users.controller.js";
 
@@ -15,6 +17,7 @@ router.get("/", getRecommendedUsers)
 router.get("/friends", getMyFriends)
 
 router.post("/friend-request/:id", sendFriendRequest)
+router.delete("/friend-request/:id", removeFriend)
 router.put("/friend-request/:id/accept", acceptFriendRequest)
 
 router.get("/friend-requests", getFriendRequest);

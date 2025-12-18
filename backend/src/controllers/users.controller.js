@@ -136,3 +136,47 @@ export const outgoingFriendRequest = async (req, res) => {
         return res.status(500).json({errorCode: "500", message: `Error in outgoingFriendRequest controller: ${e.message}` });
     }
 }
+
+export const removeFriend = async (req, res) => {
+    try {
+        const myId = req.user.id;
+        const { id: friendId } = req.params;
+
+        if (myId === friendId) {
+            return res.status(400).json({
+                errorCode: "400",
+                message: "You can't remove yourself from friends"
+            });
+        }
+
+        // Find both users
+        const me = await User.findById(myId);
+        const friend = await User.findById(friendId);
+
+        if (!friend) {
+            return res.status(404).json({
+                errorCode: "404",
+                message: "Friend not found"
+            });
+        }
+
+        // Check if they are friends
+        if (!me.friends.includes(friendId)) {
+            return res.status(400).json({
+                errorCode: "400",
+                message: "This user is not in your friends list"
+            });
+        }
+
+        // Remove friend from both users' lists
+        await User.findByIdAndUpdate(myId, { $pull: { friends: friendId } });
+        await User.findByIdAndUpdate(friendId, { $pull: { friends: myId } });
+
+        return res.status(200).json({
+            message: "Friend removed successfully"
+        });
+    } catch (e) {
+        console.error("Error in removeFriend controller:", e.message);
+        return res.status(500).json({ errorCode: "500", message: e.message });
+    }
+};
